@@ -1,4 +1,5 @@
-const { ipcRenderer } = require('electron') 
+// import { ipcRenderer } from 'electron';  // 这里既可以用import 也可以用require了
+const { ipcRenderer } = require('electron')
 const btn = document.querySelector('#btn');
 
 window.onload = () => {

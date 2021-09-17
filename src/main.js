@@ -1,19 +1,19 @@
+// import {app} from 'electron'; 目前没法在main.js 中用import
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
 function createWindow () {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       nodeIntegration:true,       // 为了解决require 识别问题
       contextIsolation: false,
-      preload: path.join(__dirname, './preload.js')
+      enableRemoteModule: true,
+      preload:path.join(__dirname, '../dist/preload.js')
     }
   })
-
-  mainWindow.loadFile('./src/index.html')
+  win.loadURL(`file://${__dirname}/../dist/index.html`)
 }
 app.whenReady().then(() => {
   createWindow()
@@ -34,7 +34,7 @@ ipcMain.on('second-window',()=>{
     nodeIntegration: true,
     contextIsolation: false,
   })
-  newWindow.loadFile('./src/windows/second.html');
+  newWindow.loadFile('./dist/second.html');
 
   newWindow.on('close',()=>{
     // 防止内存泄露
