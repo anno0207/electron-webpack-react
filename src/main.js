@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
 function createWindow () {
@@ -7,33 +7,37 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
+      nodeIntegration:true,       // 为了解决require 识别问题
+      contextIsolation: false,
       preload: path.join(__dirname, './preload.js')
     }
   })
 
-  // and load the index.html of the app.
   mainWindow.loadFile('./src/index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
 }
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
   createWindow()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
+})
+
+ipcMain.on('second-window',()=>{
+  const newWindow = new BrowserWindow({
+    width:500,
+    height:400,
+    nodeIntegration: true,
+    contextIsolation: false,
+  })
+  newWindow.loadFile('./src/windows/second.html');
+
+  newWindow.on('close',()=>{
+    // 防止内存泄露
+    newWindow.destroy();
+  })
 })
